@@ -42,7 +42,7 @@ enum ptr_direction_t {UP, DOWN, LEFT, RIGHT};
 class Snusp {
 	protected:
 		std::fstream program_file;
-		std::array <char, DATA_ARRAY_SIZE> data;
+		std::array <unsigned char, DATA_ARRAY_SIZE> data;
 		int data_ptr;
 		std::vector< std::string > instruction;
 		int inst_ptr_x;
@@ -62,8 +62,7 @@ class Snusp {
 		void inst_lurd();
 		void inst_ruld();
 		void move_ahead();
-		char next_instruction();
-		char current_instruction();
+		unsigned char current_instruction();
 		void skip_inst();
 		void skip_z_inst();
 		void enter_function();

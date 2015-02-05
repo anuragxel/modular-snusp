@@ -3,24 +3,22 @@
 
 #include "SNUSP.h"
 
+int program_exit = 0;
+
 Snusp::Snusp(std::string file_name) {
 	this->program_file.open(file_name, std::ios::in);
-	this->data.fill('\0');
-
+	this->data.fill(0);
 	while(not program_file.eof()) {
 		std::string temp;
 		std::getline(program_file,temp);
-		instruction.push_back(temp);
+		instruction.push_back(temp + '\n');
 	}
-
 	this->data_ptr = 0;
-	
 	this->inst_ptr_x = 0;
 	this->inst_ptr_y = 0;
-	
 	for(unsigned int i=0;i< this->instruction.size() ;i++) {  // This is y.
-		for(unsigned int j=0;j<instruction[i].size();j++) { // This is x.
-			if(instruction[i][j] == '$') {
+		for(unsigned int j=0;j<this->instruction[i].size();j++) { // This is x.
+			if(this->instruction[i][j] == '$') {
 				this->inst_ptr_x = j;
 				this->inst_ptr_y = i;
 				break;
@@ -31,15 +29,16 @@ Snusp::Snusp(std::string file_name) {
 }
 
 Snusp::~Snusp() {
-
-}
-
-void Snusp::data_ptr_left() {
-	this->data_ptr++;
 }
 
 void Snusp::data_ptr_right() {
+	this->data_ptr++;
+}
+
+void Snusp::data_ptr_left() {
 	this->data_ptr--;
+	if(this->data_ptr < 0)
+		program_exit++;
 }
 
 void Snusp::incr_data() {
@@ -51,11 +50,11 @@ void Snusp::decr_data() {
 }
 
 void Snusp::read_into_data() {
-	std::cin >> this->data[this->data_ptr];
+	scanf("%c",&this->data[this->data_ptr]);
 }
 
 void Snusp::write_out_data() {
-	std::cout << this->data[this->data_ptr];
+	printf("%c",this->data[this->data_ptr]);
 }
 
 void Snusp::inst_lurd() {
@@ -109,60 +108,12 @@ void Snusp::move_ahead() {
 	}
 }
 
-char Snusp::next_instruction() {
-	switch(this->ptr_direction) {
-		
-		case RIGHT:
-			try {
-				return this->instruction.at(this->inst_ptr_y + 1).at(this->inst_ptr_x);
-			}
-			catch (const std::out_of_range& str) {
-				std::cerr <<"ff 1";
-				return '\0';
-			}
-			break;
-
-
-		case DOWN:
-			try {
-				return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x + 1);
-			}
-			catch (const std::out_of_range& str) {
-				std::cerr <<"ff 2";
-				return '\0';
-			}
-			break;
-
-
-		case LEFT:
-			try {
-				return this->instruction.at(this->inst_ptr_y - 1).at(this->inst_ptr_x);
-			}
-			catch (const std::out_of_range& str) {
-				std::cerr <<"ff 3";
-				return '\0';
-			}
-			break;
-
-		case UP:
-			try {
-				return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x - 1);
-			}
-			catch (const std::out_of_range& str) {
-				std::cerr <<"ff 4";
-				return '\0';
-			}
-			break;
-	}
-	return '\0';
-}
-
-char Snusp::current_instruction() {
+unsigned char Snusp::current_instruction() {
 	try {
 		return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x);
 	}
 	catch (const std::out_of_range& str) {
-		return '\0';
+		return '\n';
 	}
 }
 
@@ -177,7 +128,7 @@ void Snusp::skip_z_inst() {
 }
 
 void Snusp::enter_function() {
-	this->function_stack.push_back( std::make_pair(std::make_pair(this->inst_ptr_x, this->inst_ptr_y), this->ptr_direction) );
+	this->function_stack.push_back(std::make_pair(std::make_pair(this->inst_ptr_x, this->inst_ptr_y), this->ptr_direction));
 }
 
 void Snusp::leave_function() {
@@ -190,14 +141,12 @@ void Snusp::leave_function() {
 		function_stack.pop_back();
 	}
 	catch (const std::out_of_range& str) {
-		exit(0);
+		program_exit++;
 	}
-	
 }
 
 void Snusp::execute() {
-	while(current_instruction() != '\0') {
-		//std::cout << " Pos " << this->inst_ptr_x << " " << this->inst_ptr_y << std::endl;
+	while(current_instruction() != '\n' and program_exit <= 0) {
 		switch(current_instruction()) {
 			case '<':
 				this->data_ptr_left();

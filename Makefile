@@ -21,3 +21,7 @@ clean:
 debug:		$(SRCS)
 	$(CC) $(DFLAGS) $(LIBS) -c $(SRCS)
 	$(CC) -g -o $(PROG) *.o $(LIBS)
+
+static:		$(SRCS)
+	$(CC) $(DFLAGS) $(LIBS) -static -c $(SRCS)
+	$(CC) -static -g -o $(PROG) *.o $(LIBS)
