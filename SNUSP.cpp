@@ -7,7 +7,7 @@ Snusp::Snusp(std::string file_name) {
 	this->program_file.open(file_name, std::ios::in);
 	this->data.fill('\0');
 
-	while(not program_file.eof() ) {
+	while(not program_file.eof()) {
 		std::string temp;
 		std::getline(program_file,temp);
 		instruction.push_back(temp);
@@ -18,16 +18,15 @@ Snusp::Snusp(std::string file_name) {
 	this->inst_ptr_x = 0;
 	this->inst_ptr_y = 0;
 	
-	for(unsigned int i=0;i< this->instruction.size() ;i++) {
-		for(unsigned int j=0;j<instruction[i].size();j++) {
+	for(unsigned int i=0;i< this->instruction.size() ;i++) {  // This is y.
+		for(unsigned int j=0;j<instruction[i].size();j++) { // This is x.
 			if(instruction[i][j] == '$') {
-				this->inst_ptr_x = i;
-				this->inst_ptr_y = j;
+				this->inst_ptr_x = j;
+				this->inst_ptr_y = i;
 				break;
 			}
 		}
 	}
-
 	this->ptr_direction = RIGHT;
 }
 
@@ -111,50 +110,58 @@ void Snusp::move_ahead() {
 }
 
 char Snusp::next_instruction() {
-
 	switch(this->ptr_direction) {
+		
 		case RIGHT:
 			try {
-				return this->instruction.at(this->inst_ptr_x + 1).at(this->inst_ptr_y);
+				return this->instruction.at(this->inst_ptr_y + 1).at(this->inst_ptr_x);
 			}
 			catch (const std::out_of_range& str) {
-				std::cerr << "Fuck this 'next instruction' shit!" << std::endl;
+				std::cerr <<"ff 1";
 				return '\0';
 			}
+			break;
+
+
 		case DOWN:
 			try {
-				return this->instruction.at(this->inst_ptr_x).at(this->inst_ptr_y + 1);
+				return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x + 1);
 			}
 			catch (const std::out_of_range& str) {
-				std::cerr << "Fuck this 'next instruction' shit!" << std::endl;
+				std::cerr <<"ff 2";
 				return '\0';
 			}
+			break;
+
+
 		case LEFT:
 			try {
-				return this->instruction.at(this->inst_ptr_x - 1).at(this->inst_ptr_y);
+				return this->instruction.at(this->inst_ptr_y - 1).at(this->inst_ptr_x);
 			}
 			catch (const std::out_of_range& str) {
-				std::cerr << "Fuck this 'next instruction' shit!" << std::endl;
+				std::cerr <<"ff 3";
 				return '\0';
 			}
+			break;
+
 		case UP:
 			try {
-				return this->instruction.at(this->inst_ptr_x).at(this->inst_ptr_y - 1);
+				return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x - 1);
 			}
 			catch (const std::out_of_range& str) {
-				std::cerr << "Fuck this 'next instruction' shit!" << std::endl;
+				std::cerr <<"ff 4";
 				return '\0';
 			}
+			break;
 	}
 	return '\0';
 }
 
 char Snusp::current_instruction() {
 	try {
-		return this->instruction.at(this->inst_ptr_x).at(this->inst_ptr_y);
+		return this->instruction.at(this->inst_ptr_y).at(this->inst_ptr_x);
 	}
 	catch (const std::out_of_range& str) {
-		std::cerr << "Fuck this 'current instruction' shit!" << std::endl;
 		return '\0';
 	}
 }
@@ -174,16 +181,23 @@ void Snusp::enter_function() {
 }
 
 void Snusp::leave_function() {
-	auto temp = function_stack.back();
-	function_stack.pop_back();
-	this->inst_ptr_x = temp.first.first;
-	this->inst_ptr_y = temp.first.second;
-	this->ptr_direction = temp.second;
-	this->move_ahead();
+	try {
+		auto temp = function_stack.back();
+		this->inst_ptr_x = temp.first.first;
+		this->inst_ptr_y = temp.first.second;
+		this->ptr_direction = temp.second;
+		this->move_ahead();
+		function_stack.pop_back();
+	}
+	catch (const std::out_of_range& str) {
+		exit(0);
+	}
+	
 }
 
 void Snusp::execute() {
-	while(next_instruction() != '\0') {		
+	while(current_instruction() != '\0') {
+		//std::cout << " Pos " << this->inst_ptr_x << " " << this->inst_ptr_y << std::endl;
 		switch(current_instruction()) {
 			case '<':
 				this->data_ptr_left();

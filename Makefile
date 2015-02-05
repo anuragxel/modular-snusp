@@ -1,5 +1,6 @@
 CC = g++
 CFLAGS = -std=c++11 -Wall -O3
+DFLAGS = -std=c++11 -Wall -g
 PROG = snuspInterpreter
 
 SRCS = SNUSP.cpp main.cpp
@@ -8,7 +9,7 @@ LIBS =
 all: $(PROG)
 
 $(PROG):        $(SRCS)
-	$(CC) $(CFLAGS) $(LIBS) -c *.cpp
+	$(CC) $(CFLAGS) $(LIBS) -c $(SRCS)
 	$(CC) -o $(PROG) *.o $(LIBS)
 
 clear:
@@ -18,5 +19,5 @@ clean:
 	rm -f $(PROG) *.o
 
 debug:		$(SRCS)
-	$(CC) $(CFLAGS) $(LIBS) -c -g *.cpp
+	$(CC) $(DFLAGS) $(LIBS) -c $(SRCS)
 	$(CC) -g -o $(PROG) *.o $(LIBS)
