@@ -49,6 +49,7 @@ class Snusp {
 		int inst_ptr_y;
 		ptr_direction_t ptr_direction;
 		std::vector< std::pair< std::pair<int, int>, ptr_direction_t > > function_stack;
+		unsigned int prev_time;
 	public:
 		Snusp(std::string);
 		~Snusp();

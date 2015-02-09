@@ -25,6 +25,7 @@ Snusp::Snusp(std::string file_name) {
 			}
 		}
 	}
+	this->prev_time = time(0);
 	this->ptr_direction = RIGHT;
 }
 
