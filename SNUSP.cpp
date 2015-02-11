@@ -5,8 +5,10 @@
 
 int program_exit = 0;
 
-Snusp::Snusp(std::string file_name) {
+Snusp::Snusp(std::string file_name,std::string input_file,std::string output_file) {
 	this->program_file.open(file_name, std::ios::in);
+	this->input_file.open(input_file, std::ios::in);
+	this->output_file.open(output_file, std::ios::out | std::ios::trunc);
 	this->data.fill(0);
 	while(not program_file.eof()) {
 		std::string temp;
@@ -25,7 +27,7 @@ Snusp::Snusp(std::string file_name) {
 			}
 		}
 	}
-	this->prev_time = time(0);
+	this->start_time = time(0);
 	this->ptr_direction = RIGHT;
 }
 
@@ -34,6 +36,8 @@ Snusp::~Snusp() {
 
 void Snusp::data_ptr_right() {
 	this->data_ptr++;
+	if(this->data_ptr > DATA_ARRAY_SIZE)
+		program_exit++; 
 }
 
 void Snusp::data_ptr_left() {
@@ -51,11 +55,11 @@ void Snusp::decr_data() {
 }
 
 void Snusp::read_into_data() {
-	scanf("%c",&this->data[this->data_ptr]);
+	this->input_file >> this->data[this->data_ptr];
 }
 
 void Snusp::write_out_data() {
-	printf("%c",this->data[this->data_ptr]);
+	this->output_file << this->data[this->data_ptr];
 }
 
 void Snusp::inst_lurd() {
@@ -147,7 +151,11 @@ void Snusp::leave_function() {
 }
 
 void Snusp::execute() {
+	time_t current_time;
 	while(current_instruction() != '\n' and program_exit <= 0) {
+		current_time = time(0);
+		if(current_time - this->start_time > TIME_LIMIT)
+			return;
 		switch(current_instruction()) {
 			case '<':
 				this->data_ptr_left();

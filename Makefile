@@ -1,10 +1,12 @@
 CC = g++
 CFLAGS = -std=c++11 -Wall -O3
 DFLAGS = -std=c++11 -Wall -g
-PROG = snuspInterpreter
+PROG = snusp
 
 SRCS = SNUSP.cpp main.cpp
 LIBS =
+PREFIX ?= /usr/local
+BINDIR = $(PREFIX)/bin
 
 all: $(PROG)
 
@@ -25,3 +27,9 @@ debug:		$(SRCS)
 static:		$(SRCS)
 	$(CC) $(DFLAGS) $(LIBS) -static -c $(SRCS)
 	$(CC) -static -g -o $(PROG) *.o $(LIBS)
+
+install:	$(PROG)
+	@echo "Installing program to $(DESTDIR)$(BINDIR) ..."
+	@mkdir -p $(DESTDIR)$(BINDIR)
+	@install -pm0755 $(PROG) $(DESTDIR)$(BINDIR)/$(TARGET) || \
+		echo "Failed. Try "make PREFIX=~ install" ?"
